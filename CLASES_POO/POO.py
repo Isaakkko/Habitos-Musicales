@@ -77,3 +77,139 @@ class about_data:
         self.__df[columnas] = self.__scaler.fit_transform(self.__df[columnas])
         print(f"Columnas estandarizadas: {columnas}")
         return self.__df
+
+
+#*************************************REGLAS DE ASOCIACIÓN************************************************************
+import pandas as pd
+import matplotlib.pyplot as plt
+import networkx as nx
+from mlxtend.frequent_patterns import apriori, fpgrowth, association_rules
+
+class Reglas_Asociacion:
+    def __init__(self, df: pd.DataFrame):
+        # Aseguramos que la matriz sea 100% de booleanos (True/False)
+        self.df = df.astype(bool)
+        self.items_frecuentes = None
+        self.reglas = None
+        self.metodo = None
+
+    def fit(self, metodo: str = 'fpgrowth', min_support: float = 0.03, min_confidence: float = 0.4):
+        """
+        Entrena el algoritmo seleccionado: 'apriori', 'fpgrowth' o 'eclat'.
+        """
+        self.metodo = metodo.lower()
+
+        # 1. Buscar conjuntos frecuentes
+        # ECLAT encuentra los mismos itemsets frecuentes que FP-Growth (minería vertical)
+        if self.metodo == 'apriori':
+            self.items_frecuentes = apriori(self.df, min_support=min_support, use_colnames=True)
+        elif self.metodo in ['fpgrowth', 'eclat']:
+            self.items_frecuentes = fpgrowth(self.df, min_support=min_support, use_colnames=True)
+        else:
+            raise ValueError("Método no válido. Usa 'apriori', 'fpgrowth' o 'eclat'.")
+
+        # 2. Generar las reglas de asociación
+        if self.items_frecuentes is not None and not self.items_frecuentes.empty:
+            self.reglas = association_rules(
+                self.items_frecuentes,
+                metric='confidence',
+                min_threshold=min_confidence
+            )
+        else:
+            print(f"No se encontraron combinaciones con soporte >= {min_support}")
+            self.reglas = pd.DataFrame()
+
+        return self.reglas
+
+    def ver_reglas(self, top_n: int = 10, ordenar_por: str = 'lift', lift_minimo: float = 1.0):
+        """Devuelve un DataFrame limpio ordenado por la métrica elegida."""
+        if self.reglas is None or self.reglas.empty:
+            print("No hay reglas disponibles.")
+            return pd.DataFrame()
+
+        # Filtramos para descartar reglas irrelevantes
+        df_filtrado = self.reglas[self.reglas['lift'] >= lift_minimo].copy()
+        columnas = ['antecedents', 'consequents', 'support', 'confidence', 'lift']
+        return df_filtrado.sort_values(by=ordenar_por, ascending=False).head(top_n)[columnas]
+
+    def graficar_dispersion(self):
+        """Gráfico de dispersión simple: Soporte vs Confianza (con color de Lift)."""
+        if self.reglas is None or self.reglas.empty:
+            print("No hay reglas para graficar.")
+            return
+
+        plt.figure(figsize=(8, 5))
+        scatter = plt.scatter(
+            self.reglas['support'],
+            self.reglas['confidence'],
+            c=self.reglas['lift'],
+            cmap='viridis',
+            alpha=0.7
+        )
+        plt.colorbar(scatter, label='Lift')
+        plt.xlabel('Soporte (Support)')
+        plt.ylabel('Confianza (Confidence)')
+        plt.title(f'Reglas de Asociación ({self.metodo.upper()})')
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.show()
+
+    def graficar_red(self, top_n: int = 10):
+        """Grafo dirigido mostrando las conexiones de las reglas más fuertes."""
+        if self.reglas is None or self.reglas.empty:
+            print("No hay reglas para graficar.")
+            return
+
+        # Graficamos solo el top_n para evitar saturar el gráfico
+        top_reglas = self.reglas.sort_values(by='lift', ascending=False).head(top_n)
+
+        G = nx.DiGraph()
+        for _, row in top_reglas.iterrows():
+            ant = ', '.join(list(row['antecedents']))
+            con = ', '.join(list(row['consequents']))
+            G.add_edge(ant, con, weight=row['lift'])
+
+        plt.figure(figsize=(9, 6))
+        pos = nx.spring_layout(G, k=0.8)
+        nx.draw(
+            G, pos, with_labels=True,
+            node_color='lightblue', edge_color='gray',
+            node_size=2500, font_size=8, arrows=True
+        )
+        plt.title(f"Red de Reglas Principales ({self.metodo.upper()})")
+        plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
