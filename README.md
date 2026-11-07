@@ -1,7 +1,14 @@
 # Habitos-Musicales
 
-Se realiza un analisis exploratorio, metodos y modelos de ML para el descubrimiento de patrones y comportamientos en los datos, con el fin de darles una interpretación y valor
+Se realiza un análisis exploratorio, métodos de preprocesamiento automatizados mediante un pipeline orientado a objetos (POO) y modelos de Machine Learning para el descubrimiento de patrones y comportamientos en los datos de streaming musical, con el fin de darles una interpretación y valor estratégico.
 
+Componentes principales del proyecto:
+
+**Pipeline POO:** Arquitectura modular y reutilizable para la ingesta, limpieza y transformación de los datos.
+
+**Análisis Exploratorio (EDA):** Estadísticas descriptivas y visualizaciones para comprender las distribuciones de los 4,000 registros y 15 variables del dataset.
+
+**Minería de Datos y Modelado:** Aplicación de algoritmos para la generación de reglas de asociación (recomendación).
 
 
 #### **Comprensión del negocio**
@@ -58,19 +65,33 @@ Formato y ubicación: Archivo csv ubicado en carpeta data/raw/ la cual luego de 
 **2.Descripción de los Datos:** 4000 filas y 15 columnas
 
 **1.	listener_id (Numérico / Identificador):** Identificador único para cada usuario o escucha en la plataforma. 
+
 **2.	age (Numérico):** Edad del usuario. 
+
 **3.	country (Texto / Categórico):** País de residencia o procedencia del usuario. 
+
 **4.	platform (Texto / Categórico):** Plataforma de streaming de música utilizada (ej. Spotify, Apple Music, etc.). 
+
 **5.	subscription (Texto / Categórico):** Tipo de suscripción del usuario (ej. Free, Premium). 
+
 **6.	top_genre (Texto / Categórico):** Género musical preferido o más escuchado por el usuario. 
+
 **7.	top_artist (Texto / Categórico):** Artista favorito del usuario. 
+
 **8.	daily_listening_minutes (Numérico):** Tiempo total de escucha diaria expresado en minutos. 
+
 **9.	songs_per_day (Numérico):** Cantidad promedio de canciones reproducidas por día. 
+
 **10.	playlists_count (Numérico):** Número de listas de reproducción creadas por el usuario. 
+
 **11.	skip_rate_pct (Texto / Numérico porcentual):** Porcentaje o tasa de omisión (skip rate) de canciones. 
+
 **12.	discover_weekly_user (Booleano):** Indicador de si el usuario hace uso de la función de descubrimiento semanal (TRUE / FALSE). 
+
 **13.	top_mood (Texto / Categórico):** Estado de ánimo predominante o asociado a las sesiones de escucha del usuario (ej. Sleep, activo, relajado). 
+
 **14.	uses_offline_mode (Booleano):** Indica si el usuario utiliza el modo sin conexión a internet (TRUE / FALSE). 
+
 **15.	podcasts_too (Booleano):** Indica si el usuario también consume podcasts en la plataforma (TRUE / FALSE). 
 
 
