@@ -26,9 +26,10 @@ class about_data:
     """Muestra filas, duplicados y columnas con nulos."""
     def reporte_calidad(self):
         total_filas = len(self.__df)
-        duplicados = self.__df.duplicated().sum()
-        nulos_columna = self.__df.isnull().sum()
+        duplicados = self.__df.duplicated().sum() # Función que mostrara las columnas que tengan duplicados
+        nulos_columna = self.__df.isnull().sum() # Función que mostrara las columnas que tengan nulls
 
+        #Creación de un DataFrame donde se muestra el tipo de dato, Valores nulos y su porcentaje
         nulos_tabla = pd.DataFrame({
             'Tipo de Dato': self.__df.dtypes,
             'Valores Nulos': nulos_columna,
@@ -39,22 +40,22 @@ class about_data:
         print(f"Total de registros: {total_filas}")
         print(f"Registros duplicados: {duplicados}")
         print("\nDetalle de campos y valores faltantes:")
-        hay_nulos = duplicados > 0 or nulos_columna.sum() > 0
+        hay_nulos = duplicados > 0 or nulos_columna.sum() > 0 #En caso de que se encuentren duplicados
         print(nulos_tabla[nulos_tabla['Valores Nulos'] > 0] if hay_nulos else "No se detectaron valores nulos.")
         return nulos_tabla
 
 
 
     """Muestra los valores más comunes para cada columna categorica."""
-    def resumen_categoricas(self, max_mostrar: int = 10):
-        cols = self.__df.select_dtypes(include=['object', 'category']).columns.tolist()
-        if not cols:
+    def resumen_categoricas(self, max_mostrar: int = 10): #max_mostrar inicialmente esta 10 aumentar en caso de que sea necesario (columna tiene muchas categorias)
+        cols = self.__df.select_dtypes(include=['object', 'category']).columns.tolist() #tolist()) extrae los nombres de las columnas que sean de texto o categorias
+        if not cols: # Aviso que indica que no se encontaron columnas de texto en caso del que el df no tenga
             print("No se encontraron columnas de texto.")
             return
 
         print(f"=== RESUMEN DE VARIABLES CATEGÓRICAS ({len(cols)} columnas) ===\n")
         for col in cols:
-            total_unicos = self.__df[col].nunique()
+            total_unicos = self.__df[col].nunique() # Busqueda de registros unicos en la columna categorica
             print("=" * 60)
             print(f"Columna: '{col}' | Total valores únicos: {total_unicos}")
             print("-" * 60)
@@ -66,15 +67,15 @@ class about_data:
 
 
     """Estandariza columnas numéricas continuas."""
-    def estandarizar(self, columnas: list = None):
+    def estandarizar(self, columnas: list = None): #None selecciona todas las columnas numéricas automáticamente en caso de no ser seleccionadas.
         if columnas is None:
-            columnas = self.__df.select_dtypes(include=['number']).columns.tolist()
+            columnas = self.__df.select_dtypes(include=['number']).columns.tolist() #Se ejecuta solo si es numerica
 
         if not columnas:
             print("No hay columnas numéricas para estandarizar.")
             return self.__df
 
-        self.__df[columnas] = self.__scaler.fit_transform(self.__df[columnas])
+        self.__df[columnas] = self.__scaler.fit_transform(self.__df[columnas]) #fit_transform estandariza los datos de la columna numerica
         print(f"Columnas estandarizadas: {columnas}")
         return self.__df
 
@@ -85,32 +86,33 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from mlxtend.frequent_patterns import apriori, fpgrowth, association_rules
 
+#Clase que tiene el proposito de implementar las reglas de asociación con la faciliadad de cambiar paremtros
 class Reglas_Asociacion:
     def __init__(self, df: pd.DataFrame):
         # Aseguramos que la matriz sea 100% de booleanos (True/False)
         self.df = df.astype(bool)
-        self.items_frecuentes = None
-        self.reglas = None
-        self.metodo = None
+        self.items_frecuentes = None # None = Contenedores vacios temporales
+        self.reglas = None # None = Contenedores vacios temporales
+        self.metodo = None # None = Contenedores vacios temporales
 
+    """
+    Entrena el algoritmo seleccionado: 'apriori', 'fpgrowth' o 'eclat'.
+    """
     def fit(self, metodo: str = 'fpgrowth', min_support: float = 0.03, min_confidence: float = 0.4):
-        """
-        Entrena el algoritmo seleccionado: 'apriori', 'fpgrowth' o 'eclat'.
-        """
         self.metodo = metodo.lower()
 
         # 1. Buscar conjuntos frecuentes
         # ECLAT encuentra los mismos itemsets frecuentes que FP-Growth (minería vertical)
         if self.metodo == 'apriori':
-            self.items_frecuentes = apriori(self.df, min_support=min_support, use_colnames=True)
-        elif self.metodo in ['fpgrowth', 'eclat']:
+            self.items_frecuentes = apriori(self.df, min_support=min_support, use_colnames=True) #De la liberia ejecuta la función apriori ejecutando este algoritmo y toma el soporte configurado
+        elif self.metodo in ['fpgrowth', 'eclat']: #De la liberia ejecuta la función fpgrowth ejecutando este algoritmo y recordar que ECLAT encuentra los mismos itemsets que fpgrowth y toma el soporte configurado
             self.items_frecuentes = fpgrowth(self.df, min_support=min_support, use_colnames=True)
         else:
-            raise ValueError("Método no válido. Usa 'apriori', 'fpgrowth' o 'eclat'.")
+            raise ValueError("Método no válido. Usa 'apriori', 'fpgrowth' o 'eclat'.") # En caso de que el parametro colocado no sea el correcto
 
         # 2. Generar las reglas de asociación
         if self.items_frecuentes is not None and not self.items_frecuentes.empty:
-            self.reglas = association_rules(
+            self.reglas = association_rules( # association_rules toma los ítems frecuentes que superaron el soporte y calcula únicamente las reglas cuya certeza (confianza) sea igual o mayor al umbral fijado.
                 self.items_frecuentes,
                 metric='confidence',
                 min_threshold=min_confidence
