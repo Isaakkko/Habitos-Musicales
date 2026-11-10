@@ -46,6 +46,41 @@ El objetivo central en esta fase es traducir los problemas o necesidades de una 
 * **Fase de Modelado:** Reglas de asociación y segmentación.
 * **Exposición de resultados:** Interpretación de los resultados y conclusiones.
 
+**5 Costo-Beneficio:** 
+
+* **Costos:**
+
+**Recursos computacionales:** Uso de hardware y entornos de desarrollo (Python, librerías especializadas) para el procesamiento y entrenamiento del modelo.
+
+**Tiempo y esfuerzo humano:** Horas dedicadas al diseño del pipeline metodológico (CRISP-DM), limpieza, etiquetado, modelado y validación de resultados.
+
+* **Beneficios:**
+
+**Eficiencia operativa:** Automatización de la clasificación, reduciendo el error humano y el tiempo invertido en análisis manuales.
+
+**Valor académico y técnico:** Consolidación de un marco metodológico reutilizable para futuros proyectos de minería de datos y aprendizaje automático.
+
+**Conclusión de Viabilidad:** Los beneficios técnicos y operativos superan el costo de desarrollo, garantizando un retorno positivo en términos de optimización de procesos.
+
+**6. Riesgos y planes de contingencia:**
+
+* **Riesgo 1: Calidad o desbalance de los datos (Fase de Datos)**
+
+**Descripción:** Presencia de clases desbalanceadas o datos ruidosos que afecten el rendimiento del modelo.
+
+**Plan de Contingencia:** Aplicación de técnicas de preprocesamiento avanzadas (como remuestreo o ajuste de pesos en las clases) y limpieza profunda durante la preparación de datos.
+
+* **Riesgo 2: Bajo rendimiento predictivo del modelo (Fase de Modelado)**
+
+**Descripción:** Que el algoritmo no alcance el nivel de precisión deseado o presente sobreajuste (overfitting).
+
+**Plan de Contingencia:** Iterar sobre arquitecturas alternativas (por ejemplo, explorar Transfer Learning si se usan enfoques visuales más complejos) o reajustar los hiperparámetros.
+
+* **Riesgo 3: Limitaciones de tiempo o infraestructura (Fase de Despliegue/Evaluación)**
+
+**Descripción:** Que los tiempos de procesamiento excedan el cronograma establecido.
+
+**Plan de Contingencia:** Simplificar el espacio de características o priorizar un subconjunto representativo de clases para cumplir con los plazos de entrega sin comprometer la calidad del entregable.
 
 
 #### **Comprensión de los Datos**
