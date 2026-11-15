@@ -181,9 +181,85 @@ class Reglas_Asociacion:
         plt.show()
 
 
+#**************************************Modelado (Clusterización)**************************
+import pandas as pd
+import plotly.express as px
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import umap
 
 
+class Reduccion_Dimensionalidad:
+    def __init__(self, df_escalado: pd.DataFrame, df_original: pd.DataFrame):
+        """
+        df_escalado: DataFrame con columnas numéricas ya estandarizadas (StandardScaler).
+        df_original: DataFrame original para colorear los puntos por variables categóricas (ej. subscription, top_genre).
+        """
+        self.X = df_escalado.copy()
+        self.df_base = df_original.copy()
+        self.pca_df = None
+        self.tsne_df = None
+        self.umap_df = None
+        self.varianza_pca = None
 
+    def fit_pca(self, n_components: int = 2):
+        """Aplica PCA lineal y guarda la varianza explicada."""
+        pca = PCA(n_components=n_components, random_state=42)
+        coords = pca.fit_transform(self.X)
+        self.varianza_pca = pca.explained_variance_ratio_
+
+        cols = [f'PC{i + 1}' for i in range(n_components)]
+        self.pca_df = pd.DataFrame(coords, columns=cols, index=self.df_base.index)
+
+        total_var = sum(self.varianza_pca) * 100
+        print(f"PCA entrenado | Varianza explicada total ({n_components} comp.): {total_var:.2f}%")
+        for i, v in enumerate(self.varianza_pca):
+            print(f"  - PC{i + 1}: {v * 100:.2f}%")
+        return self.pca_df
+
+    def fit_tsne(self, perplexity: float = 30.0):
+        """Aplica t-SNE (proyección no lineal enfocada en estructura local)."""
+        tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, init='pca', learning_rate='auto')
+        coords = tsne.fit_transform(self.X)
+        self.tsne_df = pd.DataFrame(coords, columns=['TSNE_1', 'TSNE_2'], index=self.df_base.index)
+        print(f"t-SNE entrenado (perplexity={perplexity}).")
+        return self.tsne_df
+
+    def fit_umap(self, n_neighbors: int = 15, min_dist: float = 0.1):
+        """Aplica UMAP (proyección no lineal que preserva estructura local y global)."""
+        reductor = umap.UMAP(n_components=2, n_neighbors=n_neighbors, min_dist=min_dist, random_state=42)
+        coords = reductor.fit_transform(self.X)
+        self.umap_df = pd.DataFrame(coords, columns=['UMAP_1', 'UMAP_2'], index=self.df_base.index)
+        print(f"UMAP entrenado (n_neighbors={n_neighbors}, min_dist={min_dist}).")
+        return self.umap_df
+
+    def graficar(self, metodo: str = 'pca', color_col: str = 'subscription'):
+        """
+        Grafica la proyección 2D elegida ('pca', 'tsne' o 'umap') coloreada por una variable.
+        """
+        metodo = metodo.lower()
+        if metodo == 'pca' and self.pca_df is not None:
+            df_plot = self.pca_df.copy()
+            x_col, y_col = 'PC1', 'PC2'
+            titulo = f"Proyección PCA (Varianza: {sum(self.varianza_pca[:2]) * 100:.1f}%)"
+        elif metodo == 'tsne' and self.tsne_df is not None:
+            df_plot = self.tsne_df.copy()
+            x_col, y_col = 'TSNE_1', 'TSNE_2'
+            titulo = "Proyección t-SNE (Estructura Local)"
+        elif metodo == 'umap' and self.umap_df is not None:
+            df_plot = self.umap_df.copy()
+            x_col, y_col = 'UMAP_1', 'UMAP_2'
+            titulo = "Proyección UMAP (Estructura Local y Global)"
+        else:
+            raise ValueError("Método no válido o no entrenado aún. Ejecuta fit_pca(), fit_tsne() o fit_umap() primero.")
+
+        df_plot[color_col] = self.df_base[color_col].astype(str)
+        fig = px.scatter(
+            df_plot, x=x_col, y=y_col, color=color_col,
+            title=f"{titulo} — Agrupado por '{color_col}'",
+            opacity=0.75
+        )
+        fig.show()
 
 
 
