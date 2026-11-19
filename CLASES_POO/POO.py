@@ -264,6 +264,216 @@ class Reduccion_Dimensionalidad:
 
 
 
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
+
+def ACP_clustering(
+    datos_est, n_clusters=3, max_iter=2000, n_init=150, random_state=42
+):
+  """Aplica PCA.
+  """
+  # 1. Aplicar ACP (PCA) con 2 componentes
+  acp_est = PCA(n_components=2, random_state=random_state).fit_transform(
+      datos_est
+  )
+  df_acp = pd.DataFrame(
+      acp_est, columns=["dim1", "dim2"], index=datos_est.index.values
+  )
+
+  # 2. Aplicar K-Medias a las componentes del ACP
+  kmedias = KMeans(
+      n_clusters=n_clusters,
+      max_iter=max_iter,
+      n_init=n_init,
+      random_state=random_state,
+  )
+  kmedias.fit(df_acp)
+  grupos = kmedias.predict(df_acp)
+
+  # 3. Agregar la columna de clústeres
+  df_acp["cluster"] = grupos
+
+  return df_acp
+
+
+from math import ceil, floor, pi
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import seaborn as sb
+from seaborn import color_palette
+
+#Graficos para la clusterización(Del archivo de clase)
+class GraficosClustering:
+
+  def __init__(self, datos_original, df_acp):
+    self.datos = datos_original
+    self.datos_num = datos_original.select_dtypes(include=["number"])
+    self.df_acp = df_acp
+    self.grupos = df_acp["cluster"]
+    self.centros = None
+
+  def scatter_2D(self, label="cluster", title="Clústeres en ACP"):
+    fig = px.scatter(
+        self.df_acp,
+        x="dim1",
+        y="dim2",
+        color=self.grupos.astype(str),
+        hover_data={"Individuo": self.df_acp.index.values},
+        labels={"color": label},
+    )
+    fig.update_layout(title_text=title, title_x=0.5)
+    fig.show()
+
+  def calcular_centros(self, cant_clusters=None):
+    if cant_clusters is None:
+      cant_clusters = self.grupos.nunique()
+
+    filas = []
+    for k in range(cant_clusters):
+      ind = self.grupos == k
+      filas.append(self.datos_num[ind].mean())
+
+    self.centros = np.array(pd.DataFrame(filas))
+    return self.centros
+
+  def bar_plot(self, scale=False, cluster=None, var=None):
+    if self.centros is None:
+      self.calcular_centros()
+
+    centros = np.copy(self.centros)
+    labels = np.array(self.datos_num.columns)
+
+    if scale:
+      for col in range(centros.shape[1]):
+        max_val = max(centros[:, col])
+        if max_val != 0:
+          centros[:, col] /= max_val
+
+    colores = color_palette()
+    minimo = floor(centros.min()) if floor(centros.min()) < 0 else 0
+
+    def inside_plot(valores, etiq, titulo):
+      plt.barh(range(len(valores)), valores, 1 / 1.5, color=colores)
+      plt.xlim(minimo, ceil(centros.max()))
+      plt.title(titulo)
+
+    if var is not None:
+      mask = np.array([x in var for x in labels])
+      centros = np.array([n[mask] for n in centros])
+      colores = [colores[x % len(colores)] for x, i in enumerate(labels) if i in var]
+      labels = labels[mask]
+
+    if cluster is None:
+      for i in range(centros.shape[0]):
+        plt.subplot(1, centros.shape[0], i + 1)
+        inside_plot(centros[i].tolist(), labels, f"Cluster {i}")
+        if i == 0:
+          plt.yticks(range(len(labels)), labels)
+        else:
+          plt.yticks([])
+    else:
+      for pos, i in enumerate(cluster, start=1):
+        plt.subplot(1, len(cluster), pos)
+        inside_plot(centros[i].tolist(), labels, f"Cluster {i}")
+        if pos == 1:
+          plt.yticks(range(len(labels)), labels)
+        else:
+          plt.yticks([])
+
+    plt.tight_layout()
+    plt.show()
+
+  def bar_plot_detail(self, columns_to_plot=None, figsize=(10, 7), dpi=150):
+    if self.centros is None:
+      self.calcular_centros()
+
+    columns_names = list(self.datos_num.columns)
+    columns_to_plot = columns_to_plot or []
+    num_clusters = self.centros.shape[0]
+    labels = [f"Cluster {i}" for i in range(num_clusters)]
+    df_centros = pd.DataFrame(self.centros, columns=columns_names, index=labels)
+
+    if len(columns_to_plot) > 0:
+      if isinstance(columns_to_plot[0], str):
+        cols = columns_to_plot
+      else:
+        cols = [columns_names[i] for i in columns_to_plot]
+    else:
+      cols = columns_names
+
+    plots = len(cols)
+    rows, total_cols = ceil(plots / 2), 2
+
+    plt.figure(1, figsize=figsize, dpi=dpi)
+    plt.subplots_adjust(hspace=1, wspace=0.5)
+
+    for idx, col_name in enumerate(cols):
+      r, c = divmod(idx, total_cols)
+      ax = plt.subplot2grid((rows, total_cols), (r, c), colspan=1, rowspan=1)
+      sb.barplot(y=labels, x=col_name, data=df_centros, ax=ax)
+
+    plt.show()
+
+  def radar_plot(self):
+    if self.centros is None:
+      self.calcular_centros()
+
+    labels = list(self.datos_num.columns)
+    centros_norm = np.array([
+        ((n - min(n)) / (max(n) - min(n)) * 100)
+        if max(n) != min(n)
+        else np.full_like(n, 50.0, dtype=float)
+        for n in self.centros.T
+    ])
+
+    angulos = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
+    angulos += angulos[:1]
+
+    ax = plt.subplot(111, polar=True)
+    ax.set_theta_offset(pi / 2)
+    ax.set_theta_direction(-1)
+
+    plt.xticks(angulos[:-1], labels)
+    ax.set_rlabel_position(0)
+    plt.yticks(
+        [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        [
+            "10%",
+            "20%",
+            "30%",
+            "40%",
+            "50%",
+            "60%",
+            "70%",
+            "80%",
+            "90%",
+            "100%",
+        ],
+        color="grey",
+        size=8,
+    )
+    plt.ylim(-10, 100)
+
+    for i in range(centros_norm.shape[1]):
+      valores = centros_norm[:, i].tolist()
+      valores += valores[:1]
+      ax.plot(
+          angulos,
+          valores,
+          linewidth=1,
+          linestyle="solid",
+          label=f"Cluster {i}",
+      )
+      ax.fill(angulos, valores, alpha=0.3)
+
+    plt.legend(loc="upper right", bbox_to_anchor=(0.1, 0.1))
+    plt.show()
+
+
+
 
 
 
