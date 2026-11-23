@@ -181,7 +181,7 @@ class Reglas_Asociacion:
         plt.show()
 
 
-#**************************************Modelado (Clusterización)**************************
+#**************************************Modelado (Clusterización) NO utilizar solo pruebas**************************
 import pandas as pd
 import plotly.express as px
 from sklearn.decomposition import PCA
@@ -263,24 +263,34 @@ class Reduccion_Dimensionalidad:
 
 
 
+
+#*********************************MODELOS ACP, TSNE Y UMAP*****************************************************
 from math import ceil, floor, pi
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import plotly.express as px
 import seaborn as sb
 from seaborn import color_palette
-from sklearn.cluster import KMeans
+import pandas as pd
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from umap import UMAP
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 
-def _columnas_numericas_acp(df: pd.DataFrame) -> list:
-    return df.select_dtypes(include=["number"]).columns.tolist()
+class ClusteringReduccion:
 
+  def __init__(self, datos_est):
+    self.datos_est = datos_est
 
-def ACP_clustering(datos_est: pd.DataFrame, n_clusters: int = 3, max_iter: int = 2000, n_init: int = 150, random_state: int = 42) -> pd.DataFrame:
+    # Modelo ACP
+  def acp_kmeans(self, n_clusters=3, max_iter=2000, n_init=150, random_state=42): # Ajustes del modelo
     acp = PCA(n_components=2, random_state=random_state)
-    df_acp = pd.DataFrame(acp.fit_transform(datos_est), columns=["dim1", "dim2"], index=datos_est.index)
+    coords = acp.fit_transform(self.datos_est) # fit_transform sacar las dimenciones
+    df = pd.DataFrame(
+        coords, columns=["dim1", "dim2"], index=self.datos_est.index # Guardar las dimensiones en un DataFrame
+    )
 
     kmedias = KMeans(
         n_clusters=n_clusters,
@@ -288,8 +298,90 @@ def ACP_clustering(datos_est: pd.DataFrame, n_clusters: int = 3, max_iter: int =
         n_init=n_init,
         random_state=random_state,
     )
-    df_acp["cluster"] = kmedias.fit_predict(df_acp)
-    return df_acp
+    df["cluster"] = kmedias.fit_predict(df) #Asigancion de cluster segun k
+    return df
+
+    # Modelo TSNE
+  def tsne_kmeans(
+      self,
+      n_clusters=3,
+      perplexity=2,
+      max_iter=2000,
+      n_init=150,
+      random_state=42,
+  ): # Ajustes del modelo
+    tsne = TSNE(
+        n_components=2,
+        perplexity=perplexity,
+        learning_rate="auto",
+        init="random",
+        random_state=random_state,
+    )
+    coords = tsne.fit_transform(self.datos_est)
+    df = pd.DataFrame(
+        coords, columns=["dim1", "dim2"], index=self.datos_est.index
+    )
+
+    kmedias = KMeans(
+        n_clusters=n_clusters,
+        max_iter=max_iter,
+        n_init=n_init,
+        random_state=random_state,
+    )
+    df["cluster"] = kmedias.fit_predict(df)
+    return df
+
+    # Modelo UMAP
+  def umap_kmeans(self, n_clusters=3, n_neighbors=2, max_iter=2000, n_init=150): # Ajustes del modelo
+    umap_est = UMAP(n_components=2, n_neighbors=n_neighbors).fit_transform(
+        self.datos_est
+    )
+    df = pd.DataFrame(
+        umap_est, columns=["dim1", "dim2"], index=self.datos_est.index
+    )
+
+    kmedias = KMeans(n_clusters=n_clusters, max_iter=max_iter, n_init=n_init)
+    df["cluster"] = kmedias.fit_predict(df)
+    return df
+
+    #Función para identificar el k (Clusters) optimo
+  def k_optimo(self, datos=None, k_min=2, k_max=8, n_init=20, random_state=42):
+      if datos is None:
+          datos = self.datos_est
+
+      ks = range(k_min, k_max + 1)
+      inercias = []
+      siluetas = []
+
+      for k in ks:
+          modelo = KMeans(n_clusters=k, n_init=n_init, random_state=random_state)
+          etiquetas = modelo.fit_predict(datos)
+          inercias.append(modelo.inertia_)
+          siluetas.append(silhouette_score(datos, etiquetas))
+
+      plt.figure(figsize=(10, 4))
+
+      plt.subplot(1, 2, 1)
+      plt.plot(ks, inercias, marker="o")
+      plt.title("Método del codo")
+      plt.xlabel("k")
+      plt.ylabel("Inercia")
+
+      plt.subplot(1, 2, 2)
+      plt.plot(ks, siluetas, marker="o")
+      plt.title("Coeficiente de silueta")
+      plt.xlabel("k")
+      plt.ylabel("Silueta")
+
+      plt.tight_layout()
+      plt.show()
+
+
+
+
+#**********Graficos**********************
+def _columnas_numericas_acp(df: pd.DataFrame) -> list:
+    return df.select_dtypes(include=["number"]).columns.tolist()
 
 
 class GraficosClustering:
