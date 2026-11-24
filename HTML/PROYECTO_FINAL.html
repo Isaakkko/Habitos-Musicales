@@ -392,6 +392,7 @@ if str(RAIZ) not in sys.path:
 #from TSNE.TSNE import AnalisisTSNE
 #from CLASES_POO.EDA.EDA import EDAMusicStreaming
 from CLASES_POO.EDA import *
+from CLASES_POO.EDA.VIZUALIZADOR import VisualizacionMusicStreaming
 from CLASES_POO.POO import (
     about_data,
     Reglas_Asociacion,
@@ -984,6 +985,17 @@ eda.graficar_matriz_correlacion()</pre></div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="cell cell-code">
+            <div class="cell-prompt input-prompt">In [ ]:</div>
+            <div class="cell-content">
+                <div class="input-area"><pre># Gráficos específicos del dataset limpio (columnas en español)
+viz = VisualizacionMusicStreaming(str(RAIZ / "DATA" / "PROCESSED" / "music_streaming_habits_limpio.csv"))
+
+viz.graficar_minutos_por_plataforma()
+viz.graficar_canciones_por_animo()
+viz.graficar_minutos_vs_canciones()</pre></div>
             </div>
         </div>
         <div class="cell cell-code">
