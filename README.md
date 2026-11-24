@@ -1,157 +1,109 @@
-# Habitos-Musicales
-
-Se realiza un análisis exploratorio, métodos de preprocesamiento automatizados mediante un pipeline orientado a objetos (POO) y modelos de Machine Learning para el descubrimiento de patrones y comportamientos en los datos de streaming musical, con el fin de darles una interpretación y valor estratégico.
-
-Componentes principales del proyecto:
-
-**Pipeline POO:** Arquitectura modular y reutilizable para la ingesta, limpieza y transformación de los datos.
-
-**Análisis Exploratorio (EDA):** Estadísticas descriptivas y visualizaciones para comprender las distribuciones de los 4,000 registros y 15 variables del dataset.
-
-**Minería de Datos y Modelado:** Aplicación de algoritmos para la generación de reglas de asociación (recomendación).
-
-
-#### **Comprensión del negocio**
-
-El objetivo central en esta fase es traducir los problemas o necesidades de una plataforma de streaming de música (estilo Spotify o Apple Music) en metas concretas de Minería de Datos (Data Mining) y en un plan de trabajo.
-
-**1.Determinar los objetivos del negocio:**
-
-* **Problema a resolver:** Identificar patrones de consumo, preferencias musicales y comportamiento de escucha de los usuarios para personalizar la experiencia, mejorar los sistemas de recomendación y optimizar la retención.
-
-* **Uso del Data Mining:** Los datos de reproducciones e interacciones son masivos y complejos. La minería de datos permite extraer patrones (como hábitos de escucha por ciertos minutos o géneros complementarios) y agrupar usuarios con comportamientos similares.
-  
-* **Como medir el éxito:** 
-
-**Cualitativos:** Recomendaciones más afines percibidas por el usuario y mejor segmentación comercial. 
-
-**Cuantitativos:** Incrementar el tiempo promedio de escucha diaria, aumentar la tasa de aceptación de recomendaciones y reducir la tasa de abandono de la plataforma. 
-
-**2.Valoración de la Situación:**
-
-* **Conocimiento acerca del problema:** Se conoce que el comportamiento de escucha varía según el momento del día, el contexto del usuario (trabajo, ejercicio, relax), la edad y el tipo de dispositivo utilizado.
-
-* **Contar con la cantidad requerida de datos:** Se dispone de un total de 4000 filas y 15 columnas.
-
-* **Relación coste-beneficio de Data Mining:** La relación es alta. La optimización del pipeline de datos y los modelos de segmetación/recomendación maximizan el valor de vida del cliente frente a un costo computacional y de desarrollo acotado.
-
-**3.Determinar los Objetivos de Data Mining:**
-
-**Reglas de Asociación:** Descubrir patrones frecuentes usando algoritmos como A priori, FP-Growth y Eclat para sugerir contenido a los clientes.
-
-**4.Realizar el Plan del Proyecto:**
-
-* **Ingreso de datos:** Ingesta, limpieza y transformación mediante clases en Python
-* **Fase Exploratoria:** Análisis descriptivo, histogramas y correlaciones.
-* **Fase de Modelado:** Reglas de asociación y segmentación.
-* **Exposición de resultados:** Interpretación de los resultados y conclusiones.
-
-**5 Costo-Beneficio:** 
-
-* **Costos:**
-
-**Recursos computacionales:** Uso de hardware y entornos de desarrollo (Python, librerías especializadas) para el procesamiento y entrenamiento del modelo.
-
-**Tiempo y esfuerzo humano:** Horas dedicadas al diseño del pipeline metodológico (CRISP-DM), limpieza, etiquetado, modelado y validación de resultados.
-
-* **Beneficios:**
-
-**Eficiencia operativa:** Automatización de la clasificación, reduciendo el error humano y el tiempo invertido en análisis manuales.
-
-**Valor académico y técnico:** Consolidación de un marco metodológico reutilizable para futuros proyectos de minería de datos y aprendizaje automático.
-
-**Conclusión de Viabilidad:** Los beneficios técnicos y operativos superan el costo de desarrollo, garantizando un retorno positivo en términos de optimización de procesos.
-
-**6. Riesgos y planes de contingencia:**
-
-* **Riesgo 1: Calidad o desbalance de los datos (Fase de Datos)**
-
-**Descripción:** Presencia de clases desbalanceadas o datos ruidosos que afecten el rendimiento del modelo.
-
-**Plan de Contingencia:** Aplicación de técnicas de preprocesamiento avanzadas (como remuestreo o ajuste de pesos en las clases) y limpieza profunda durante la preparación de datos.
-
-* **Riesgo 2: Bajo rendimiento predictivo del modelo (Fase de Modelado)**
-
-**Descripción:** Que el algoritmo no alcance el nivel de precisión deseado o presente sobreajuste (overfitting).
-
-**Plan de Contingencia:** Iterar sobre arquitecturas alternativas (por ejemplo, explorar Transfer Learning si se usan enfoques visuales más complejos) o reajustar los hiperparámetros.
-
-* **Riesgo 3: Limitaciones de tiempo o infraestructura (Fase de Despliegue/Evaluación)**
-
-**Descripción:** Que los tiempos de procesamiento excedan el cronograma establecido.
-
-**Plan de Contingencia:** Simplificar el espacio de características o priorizar un subconjunto representativo de clases para cumplir con los plazos de entrega sin comprometer la calidad del entregable.
-
-
-#### **Comprensión de los Datos**
-
-**1.Recolectar los Datos Iniciales:** Fuente de origen: Repositorio público de Kaggle (Music Streaming Habits 2026).
-
-&#x20;
-
-link: https://www.kaggle.com/datasets/uditjain13/music-streaming-habits-2026
-
-
-
-Formato y ubicación: Archivo csv ubicado en carpeta data/raw/ la cual luego de realizar la limpiza correspondiente estará en data/processed/
-
-
-
-**2.Descripción de los Datos:** 4000 filas y 15 columnas
-
-**1.	listener_id (Numérico / Identificador):** Identificador único para cada usuario o escucha en la plataforma. 
-
-**2.	age (Numérico):** Edad del usuario. 
-
-**3.	country (Texto / Categórico):** País de residencia o procedencia del usuario. 
-
-**4.	platform (Texto / Categórico):** Plataforma de streaming de música utilizada (ej. Spotify, Apple Music, etc.). 
-
-**5.	subscription (Texto / Categórico):** Tipo de suscripción del usuario (ej. Free, Premium). 
-
-**6.	top_genre (Texto / Categórico):** Género musical preferido o más escuchado por el usuario. 
-
-**7.	top_artist (Texto / Categórico):** Artista favorito del usuario. 
-
-**8.	daily_listening_minutes (Numérico):** Tiempo total de escucha diaria expresado en minutos. 
-
-**9.	songs_per_day (Numérico):** Cantidad promedio de canciones reproducidas por día. 
-
-**10.	playlists_count (Numérico):** Número de listas de reproducción creadas por el usuario. 
-
-**11.	skip_rate_pct (Texto / Numérico porcentual):** Porcentaje o tasa de omisión (skip rate) de canciones. 
-
-**12.	discover_weekly_user (Booleano):** Indicador de si el usuario hace uso de la función de descubrimiento semanal (TRUE / FALSE). 
-
-**13.	top_mood (Texto / Categórico):** Estado de ánimo predominante o asociado a las sesiones de escucha del usuario (ej. Sleep, activo, relajado). 
-
-**14.	uses_offline_mode (Booleano):** Indica si el usuario utiliza el modo sin conexión a internet (TRUE / FALSE). 
-
-**15.	podcasts_too (Booleano):** Indica si el usuario también consume podcasts en la plataforma (TRUE / FALSE). 
-
-
-
-
-**3.Exploración de los Datos (EDA):** 
-
-* **Estadísticas:** Se usa la aplicación de estadísticas para obtener las medidas de tendencia central (como la media), de dispersión (desviación estándar, mínimos, máximos) y de posición (cuartiles del 25%, 50% o mediana, y 75%) para revelar las propiedades iniciales del dataset.
-
-* **Gráficos:** 
-
-  **Boxplot comparativo de las variables numéricas:** Permite colocar las variables numéricas lado a lado en cajas para mostrar la mediana y la dispersión de cada una, identificando posibles valores atípicos (outliers) fuera de los bigotes e interpretándolas por separado debido a sus diferentes escalas.
-
-  **Gráficos de barras de variables categóricas:** Diseñados para contar cuántas personas se registran en cada categoría (país, plataforma, suscripción, género favorito, artista, estado de ánimo y podcast), identificando cuáles son las más frecuentes o populares.
-  
-  **Boxplot de minutos por día según la plataforma:** Se puede utilizar para comparar el tiempo de escucha entre los usuarios de cada plataforma, mostrando la mediana, la variación interna y los casos atípicos para describir hábitos de consumo.
-  
-  **Boxplot de canciones por día según el estado de ánimo:** Permite revisar si la cantidad de canciones reproducidas varía dependiendo del estado de ánimo del usuario (ej. feliz, triste, enérgico) y cuál presenta el promedio más alto.
-  
-  **Diagrama de dispersión de minutos vs. canciones por día:** Visualización donde cada punto representa a un usuario con colores por plataforma, sirviendo para observar si quienes escuchan más minutos también reproducen más canciones, apoyándose en el cálculo de una correlación clasificada como débil, moderada o marcada.
-
-
-**4.Verificar la Calidad de los Datos:** 
-
-Identificar cuáles columnas presentan datos faltantes.
-
-Detectar los outliers.
-
+# Hábitos Musicales
+
+Análisis de datos de streaming musical con la metodología **CRISP-DM**: exploración, preprocesamiento automatizado mediante un pipeline orientado a objetos (POO) en Python, reducción de dimensionalidad, segmentación de usuarios y reglas de asociación para un sistema de recomendación.
+
+## Contenido
+
+- [Contexto académico](#contexto-académico)
+- [Problema y objetivos](#problema-y-objetivos)
+- [Dataset](#dataset)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Metodología](#metodología)
+- [Autores](#autores)
+
+## Contexto académico
+
+| | |
+|---|---|
+| Institución | Colegio Universitario de Cartago |
+| Carrera | Big Data |
+| Curso | Minería de Datos II |
+| Profesor | Ronald Córdoba Vega |
+
+## Problema y objetivos
+
+Una plataforma de streaming musical (al estilo de Spotify o Apple Music) genera grandes volúmenes de datos de escucha. Este proyecto busca convertirlos en conocimiento útil para personalizar la experiencia del usuario, mejorar las recomendaciones y reducir el abandono de la plataforma.
+
+**Objetivos específicos**
+
+1. Explorar y describir los hábitos de escucha de los 4,000 usuarios del dataset.
+2. Automatizar la ingesta, limpieza y transformación de los datos con un pipeline modular en POO.
+3. Reducir la dimensionalidad (ACP, t-SNE y UMAP) para visualizar y comprender la estructura de los datos.
+4. Segmentar a los usuarios según su comportamiento.
+5. Descubrir reglas de asociación (Apriori, FP-Growth, Eclat) para sugerir contenido.
+
+**Criterios de éxito**
+
+| Tipo | Criterio |
+|---|---|
+| Cualitativo | Recomendaciones más afines para el usuario y mejor segmentación comercial |
+| Cuantitativo | Mayor tiempo promedio de escucha diaria, mayor aceptación de recomendaciones y menor tasa de abandono |
+
+## Dataset
+
+- **Fuente:** [Music Streaming Habits 2026](https://www.kaggle.com/datasets/uditjain13/music-streaming-habits-2026) (Kaggle).
+- **Tamaño:** 4,000 registros y 15 variables.
+- **Formato:** CSV, en `DATA/RAW/`. Las versiones depuradas quedan en `DATA/PROCESSED/`.
+
+| Variable | Tipo | Descripción |
+|---|---|---|
+| `listener_id` | Identificador | Identificador único del usuario |
+| `age` | Numérica | Edad del usuario |
+| `country` | Categórica | País de residencia |
+| `platform` | Categórica | Plataforma de streaming utilizada |
+| `subscription` | Categórica | Tipo de suscripción (Free, Premium) |
+| `top_genre` | Categórica | Género musical más escuchado |
+| `top_artist` | Categórica | Artista favorito |
+| `daily_listening_minutes` | Numérica | Minutos de escucha por día |
+| `songs_per_day` | Numérica | Canciones reproducidas por día |
+| `playlists_count` | Numérica | Número de listas de reproducción creadas |
+| `skip_rate_pct` | Numérica (porcentaje) | Porcentaje de canciones omitidas |
+| `discover_weekly_user` | Booleana | Usa el descubrimiento semanal |
+| `top_mood` | Categórica | Estado de ánimo predominante al escuchar |
+| `uses_offline_mode` | Booleana | Usa el modo sin conexión |
+| `podcasts_too` | Booleana | También consume podcasts |
+
+## Estructura del repositorio
+
+```text
+Habitos-Musicales/
+├── CLASES_POO/              # Pipeline orientado a objetos
+│   ├── EDA.py               # Análisis exploratorio
+│   ├── VIZUALIZADOR.py      # Visualizaciones generales
+│   └── POO.py               # Clases de ACP, t-SNE y UMAP
+├── CRISP-DM/
+│   └── CRISP-DM.docx        # Documento de la metodología (fases 1 y 2)
+├── DATA/
+│   ├── RAW/                 # Datos originales
+│   └── PROCESSED/           # Datos limpios y transformados
+├── HTML/
+│   ├── PROYECTO.ipynb       # Notebook principal
+│   └── PROYECTO.html        # Informe técnico
+└── MODELOS/
+    ├── CLUSTERING/          # CLUSTERING.py
+    ├── REGLAS DE ASOCIACION/# ASOCIACION.py
+    ├── TSNE/                # TSNE.py y TSNE_Analisis.ipynb
+    └── UMAP/                # MODELO_UMAP.py y UMAP.ipynb
+```
+
+## Metodología
+
+El proyecto sigue las fases de CRISP-DM.
+
+| Fase | Qué se hace | Dónde |
+|---|---|---|
+| 1. Comprensión del negocio | Objetivos, criterios de éxito, análisis costo-beneficio y matriz de riesgos | `CRISP-DM/CRISP-DM.docx` |
+| 2. Comprensión de los datos | Descripción de variables, estadísticas descriptivas, gráficos y revisión de calidad (nulos y outliers) | `CLASES_POO/EDA.py`, `CLASES_POO/VIZUALIZADOR.py` |
+| 3. Preparación de los datos | Limpieza y transformación | `DATA/PROCESSED/` |
+| 4. Modelado | ACP, t-SNE, UMAP, clustering y reglas de asociación | `CLASES_POO/POO.py`, `MODELOS/` |
+| 5. Evaluación y presentación | Interpretación de resultados e informe técnico | `HTML/PROYECTO.html` |
+
+**Análisis exploratorio.** Estadísticas descriptivas (media, desviación estándar, cuartiles), boxplots de las variables numéricas, barras de las variables categóricas, minutos por día según plataforma, canciones por día según estado de ánimo y dispersión de minutos contra canciones por día con su correlación.
+
+## Autores
+
+- Isaac Ulloa Calvo
+- Mariel Rodríguez Arguello
+- Wedell Orozco Gonzáles
+- Mónica Mendoza Morales
+- Tiffany Méndez Quirós
