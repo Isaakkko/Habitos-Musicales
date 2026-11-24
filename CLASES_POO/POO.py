@@ -518,32 +518,3 @@ class GraficosClustering:
 
         plt.legend(loc="upper right", bbox_to_anchor=(0.1, 0.1))
         plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
